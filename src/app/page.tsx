@@ -1,7 +1,6 @@
 "use client";
-import { sendMultipleEmail } from "@/lib/resend";
 import { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface Props {}
 
@@ -12,27 +11,26 @@ const Page: NextPage<Props> = ({}) => {
 
   const handleSend = async () => {
     setIsLoading(true);
-    try {
-      // const { failures, success } = await sendMultipleEmail(emails);
-      // setStatus({ success, failures });
-      const response = await fetch("/api/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(emails),
-      });
-      const data = await response.json();
-      setStatus(data);
-    } catch (error) {
-      console.error(error);
-      setStatus({ success: [], failures: ["Failed to send emails"] });
-    } finally {
-      setEmails([]);
-      setIsLoading(false);
-    }
+    emails.forEach(async (email) => {
+      try {
+        const response = await fetch("/api/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(email),
+        });
+        const data = await response.json();
+        setStatus(data);
+      } catch (error) {
+        console.error(error);
+        setStatus({ success: [], failures: ["Failed to send emails"] });
+      } finally {
+        setEmails([]);
+        setIsLoading(false);
+      }
+    });
   };
-
 
   return (
     <div>
